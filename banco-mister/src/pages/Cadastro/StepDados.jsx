@@ -9,6 +9,8 @@ function validar(d) {
   if (!cpfValido(d.cpf)) e.cpf = 'Informe um CPF válido.'
   if (!emailValido(d.email)) e.email = 'Informe um e-mail válido.'
   if (!celularValido(d.celular)) e.celular = 'Informe DDD e número.'
+  if (!d.dataNascimento) e.dataNascimento = 'Informe sua data de nascimento.'
+  if (d.senha.length < 6) e.senha = 'A senha deve ter pelo menos 6 caracteres.'
   return e
 }
 
@@ -36,6 +38,8 @@ export default function StepDados({ dados, setDados, onNext }) {
           <Field label="CPF" inputMode="numeric" placeholder="123.456.789-10" value={dados.cpf} error={erros.cpf} onChange={set('cpf', maskCpf)} />
           <Field label="E-mail" type="email" autoComplete="email" placeholder="voce@email.com" value={dados.email} error={erros.email} onChange={set('email')} />
           <Field label="Celular" type="tel" autoComplete="tel" placeholder="(11) 99999-0000" value={dados.celular} error={erros.celular} onChange={set('celular', maskCelular)} />
+          <Field label="Data de nascimento" type="date" autoComplete="bday" value={dados.dataNascimento} error={erros.dataNascimento} onChange={set('dataNascimento')} />
+          <Field label="Senha" type="password" autoComplete="new-password" placeholder="Crie uma senha" value={dados.senha} error={erros.senha} onChange={set('senha')} />
           <div className="span-2"><SubmitButton>Continuar</SubmitButton></div>
         </div>
       </form>

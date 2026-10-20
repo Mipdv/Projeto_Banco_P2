@@ -34,7 +34,7 @@ const PASSOS = {
 
 export default function Cadastro() {
   const [passo, setPasso] = useState(1)
-  const [dados, setDados] = useState({ nome: '', cpf: '', email: '', celular: '' })
+  const [dados, setDados] = useState({ nome: '', cpf: '', email: '', celular: '', dataNascimento: '', senha: '' })
   const [investimento, setInvestimento] = useState({ objetivo: OBJETIVOS[0], volume: VOLUMES[1], perfil: PERFIS[2] })
   const p = PASSOS[passo]
 

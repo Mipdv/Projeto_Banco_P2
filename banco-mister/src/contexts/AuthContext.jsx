@@ -8,8 +8,9 @@ export function AuthProvider({ children }) {
   const [autenticado, setAutenticado] = useState(Boolean(tokenStorage.get()))
 
   const entrar = useCallback(async (credenciais) => {
-    const { token } = await authApi.login(credenciais) // ajustar ao retorno do Java
-    tokenStorage.set(token)
+    // O back-end devolve "Bearer <jwt>"; guardamos só o jwt, o httpClient recoloca o prefixo.
+    const resposta = await authApi.login(credenciais)
+    tokenStorage.set(resposta.replace(/^Bearer\s+/, ''))
     setAutenticado(true)
   }, [])
 

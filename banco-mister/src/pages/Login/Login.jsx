@@ -6,12 +6,12 @@ import SubmitButton from '../../components/auth/SubmitButton'
 import { Lock, Eye, EyeOff, Help } from '../../components/icons'
 import { useAuth } from '../../contexts/AuthContext'
 import monograma from '../../assets/monograma-dourado.png'
-import { maskCpf, somenteDigitos, cpfValido } from '../../utils/formatters'
+import { emailValido } from '../../utils/formatters'
 
 export default function Login() {
   const { entrar } = useAuth()
   const navigate = useNavigate()
-  const [form, setForm] = useState({ cpf: '', senha: '' })
+  const [form, setForm] = useState({ email: '', senha: '' })
   const [erros, setErros] = useState({})
   const [mostrar, setMostrar] = useState(false)
   const [enviando, setEnviando] = useState(false)
@@ -20,7 +20,7 @@ export default function Login() {
   async function enviar(e) {
     e.preventDefault()
     const novos = {}
-    if (!cpfValido(form.cpf)) novos.cpf = 'Informe um CPF válido.'
+    if (!emailValido(form.email)) novos.email = 'Informe um e-mail válido.'
     if (!form.senha) novos.senha = 'Digite sua senha.'
     setErros(novos)
     setErroGeral('')
@@ -28,10 +28,10 @@ export default function Login() {
 
     setEnviando(true)
     try {
-      await entrar({ cpf: somenteDigitos(form.cpf), senha: form.senha })
+      await entrar({ email: form.email.trim(), senha: form.senha })
       navigate('/') // TODO: trocar pela área logada (ex.: /conta) quando existir
     } catch (err) {
-      setErroGeral(err.response?.status === 401 ? 'CPF ou senha incorretos.' : 'Não foi possível entrar agora. Tente novamente em instantes.')
+      setErroGeral(err.response?.status === 401 ? 'E-mail ou senha incorretos.' : 'Não foi possível entrar agora. Tente novamente em instantes.')
     } finally {
       setEnviando(false)
     }
@@ -66,9 +66,9 @@ export default function Login() {
       <form onSubmit={enviar} noValidate>
         <div style={{ display: 'grid', gap: 28 }}>
           <Field
-            label="CPF" inputMode="numeric" autoComplete="username" placeholder="000.000.000-00"
-            value={form.cpf} error={erros.cpf}
-            onChange={(e) => setForm({ ...form, cpf: maskCpf(e.target.value) })}
+            label="E-mail" type="email" autoComplete="username" placeholder="voce@email.com"
+            value={form.email} error={erros.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
           />
           <Field
             label="Senha" type={mostrar ? 'text' : 'password'} autoComplete="current-password" placeholder="Digite sua senha"
