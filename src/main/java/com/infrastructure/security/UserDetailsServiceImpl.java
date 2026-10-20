@@ -1,6 +1,5 @@
 package com.infrastructure.security;
 import com.repository.UsuarioRepository;
-import com.exceptions.ResoucerNotFoundException;
 import com.infrastructure.entity.Usuario;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -21,7 +20,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         // Busca o usuário no banco de dados pelo e-mail
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() ->
-                new ResoucerNotFoundException("Teste")
+                new UsernameNotFoundException("Usuário não encontrado: " + email)
                 );
         return User
                 .withUsername(usuario.getEmail()) // Define o nome de usuário como o e-mail

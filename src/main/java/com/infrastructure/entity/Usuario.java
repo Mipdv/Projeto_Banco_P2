@@ -1,5 +1,6 @@
 package com.infrastructure.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,7 +30,15 @@ public class Usuario {
     @Column(name = "email", length = 100)
     private String email;
     @Column(name = "senha")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // recebe no cadastro, nunca devolve o hash
     private String senha;
+    // Respostas do passo 2 do cadastro no front
+    @Column(name = "objetivo")
+    private String objetivo;
+    @Column(name = "volume")
+    private String volume;
+    @Column(name = "perfil")
+    private String perfil;
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "usuario_id", referencedColumnName = "id")
     private List<Telefone> telefone;

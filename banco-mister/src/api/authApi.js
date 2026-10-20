@@ -1,8 +1,6 @@
 import http from './httpClient'
 
-// O login usa CPF (somente dígitos) + senha, como no design.
-// AJUSTAR os caminhos e o formato do JSON conforme o contrato combinado com o back-end.
+// O back-end autentica por e-mail + senha e devolve o token como texto: "Bearer <jwt>".
 export const authApi = {
-  login: (credenciais) => http.post('/auth/login', credenciais).then((r) => r.data),
-  me: () => http.get('/auth/me').then((r) => r.data),
+  login: (credenciais) => http.post('/usuario/login', credenciais).then((r) => r.data),
 }

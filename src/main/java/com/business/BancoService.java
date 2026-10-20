@@ -1,6 +1,8 @@
 package com.business;
 
 
+import com.infrastructure.entity.Conta;
+import com.repository.ContaRepository;
 import com.repository.EnderecoRepository;
 import com.repository.TelefoneRepository;
 import com.repository.UsuarioRepository;
@@ -16,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
@@ -30,6 +33,7 @@ public class BancoService {
     private final UsuarioRepository usuarioRepository;
     private final EnderecoRepository enderecoRepository;
     private final TelefoneRepository telefoneRepository;
+    private final ContaRepository contaRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
@@ -40,13 +44,18 @@ public class BancoService {
         validaEmail(usuario.getEmail());
         validaSenha(usuario.getSenha());
         validaCpf(usuario.getCpf());
-        try {
-            emailExiste(usuario.getEmail());
-            usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
-            return usuarioRepository.save(usuario);
-        } catch (ConflictException e) {
-            throw new ConflictException("Email já cadastado");
+        emailExiste(usuario.getEmail());
+        if (usuarioRepository.existsByCpf(usuario.getCpf())) {
+            throw new ConflictException("CPF já cadastrado");
         }
+        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+        Usuario salvo = usuarioRepository.save(usuario);
+        Conta conta = Conta.builder()
+                .usuario(salvo)
+                .saldo(BigDecimal.ZERO)
+                .build();
+        contaRepository.save(conta);
+        return salvo;
     }
 
     public void validaIdadeMinima(LocalDateTime dataDeNascimento) {

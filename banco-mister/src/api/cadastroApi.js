@@ -1,6 +1,6 @@
 import http from './httpClient'
 
-// AJUSTAR endpoint e nomes dos campos conforme o contrato com o back-end Java.
+// POST /usuario no back-end Java (corpo no formato da entity Usuario).
 export const cadastroApi = {
-  criar: (dados) => http.post('/cadastros', dados).then((r) => r.data),
+  criar: (dados) => http.post('/usuario', dados).then((r) => r.data),
 }

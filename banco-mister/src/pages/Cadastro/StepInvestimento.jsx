@@ -34,19 +34,26 @@ export default function StepInvestimento({ dados, investimento, setInvestimento,
     setEnviando(true)
     setErro('')
     try {
+      // Formato da entity Usuario do back-end.
+      const celular = somenteDigitos(dados.celular)
       await cadastroApi.criar({
         nome: dados.nome.trim(),
         cpf: somenteDigitos(dados.cpf),
         email: dados.email.trim(),
-        celular: somenteDigitos(dados.celular),
+        senha: dados.senha,
+        dataDeNascimento: `${dados.dataNascimento}T00:00:00`,
+        telefone: [{ ddd: celular.slice(0, 2), numero: celular.slice(2) }],
         ...investimento, // objetivo, volume, perfil
       })
       onDone()
     } catch (err) {
+      const status = err.response?.status
       setErro(
-        err.response?.status === 409
-          ? 'Já existe um cadastro com este CPF ou e-mail.'
-          : 'Não foi possível concluir o cadastro. Tente novamente em instantes.',
+        status === 409
+          ? err.response.data?.message || 'Já existe um cadastro com este CPF ou e-mail.'
+          : status === 400
+            ? err.response.data?.message || 'Confira os dados informados (é preciso ter pelo menos 18 anos).'
+            : 'Não foi possível concluir o cadastro. Tente novamente em instantes.',
       )
     } finally {
       setEnviando(false)
