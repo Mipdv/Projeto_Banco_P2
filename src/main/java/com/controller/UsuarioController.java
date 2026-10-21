@@ -1,8 +1,6 @@
 package com.controller;
 
 import com.business.BancoService;
-//import com.business.ConversaoService;
-import com.infrastructure.entity.CotacaoRequest;
 import com.infrastructure.entity.Endereco;
 import com.infrastructure.entity.Telefone;
 import com.infrastructure.entity.Usuario;
@@ -14,7 +12,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,7 +24,6 @@ public class UsuarioController {
     private final BancoService bancoService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-//    private final ConversaoService conversaoService;
 
     @PostMapping
     ResponseEntity<Usuario> criaUsuario(@RequestBody Usuario usuario){
@@ -42,14 +38,6 @@ public class UsuarioController {
         );
         return "Bearer " + jwtUtil.generateToken(authentication.getName());
     }
-
-//    @GetMapping
-//    public ResponseEntity<BigDecimal> converter(@RequestParam String moedaOrigem,
-//                                                @RequestParam String moedaDestino,
-//                                                @RequestParam BigDecimal valor){
-//        CotacaoRequest cotacaoRequest = new CotacaoRequest(moedaOrigem, moedaDestino, valor);
-//        return ResponseEntity.ok(conversaoService.converter(cotacaoRequest));
-//    }
 
     @GetMapping("/{id}")
     ResponseEntity<Usuario> buscarUsuario(@RequestBody Long id){

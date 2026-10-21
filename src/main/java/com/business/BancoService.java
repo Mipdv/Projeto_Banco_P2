@@ -12,6 +12,7 @@ import com.infrastructure.entity.Endereco;
 import com.infrastructure.entity.Telefone;
 import com.infrastructure.entity.Usuario;
 import com.infrastructure.security.JwtUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,6 +40,8 @@ public class BancoService {
 
     private static final int IDADE_MINIMA = 18;
 
+
+    @Transactional
     public Usuario cadastraUsuario(Usuario usuario) {
         validaIdadeMinima(usuario.getDataDeNascimento());
         validaEmail(usuario.getEmail());

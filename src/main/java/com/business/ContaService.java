@@ -14,15 +14,16 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 
 public class ContaService {
 
-    private ContaRepository contaRepository;
-    private TransacaoRepository transacaoRepository;
-    private JwtUtil jwtUtil;
+    private final ContaRepository contaRepository;
+    private final TransacaoRepository transacaoRepository;
+    private final JwtUtil jwtUtil;
 
 
     @Transactional
@@ -30,7 +31,7 @@ public class ContaService {
         validaValor(valor);
         Conta conta = buscaContaDoToken(token);
         conta.setSaldo(conta.getSaldo().add(valor));
-        registraTransacao(conta, TipoTransacao.DEPÓSITO, valor);
+        registraTransacao(conta, TipoTransacao.DEPOSITO, valor);
         return contaRepository.save(conta);
     }
 
@@ -50,6 +51,16 @@ public class ContaService {
         if(valor == null || valor.compareTo(BigDecimal.ZERO) <= 0){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Valor deve ser maior que zero");
         }
+    }
+
+    public BigDecimal consultarSaldo(String token){
+        Conta conta = buscaContaDoToken(token);
+        return conta.getSaldo();
+    }
+
+    public List<Transacao> consultarExtrato(String token){
+        Conta conta = buscaContaDoToken(token);
+        return transacaoRepository.findByContaOrderByDataHoraDesc(conta);
     }
 
     private Conta buscaContaDoToken(String token){
