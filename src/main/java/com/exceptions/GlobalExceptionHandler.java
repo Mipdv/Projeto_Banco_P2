@@ -1,5 +1,6 @@
 package com.exceptions;
 
+import feign.FeignException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +11,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 
-// Devolve os erros como {"message": "..."} com o status que o front espera.
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -37,6 +37,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, String>> statusDefinido(ResponseStatusException e) {
         return resposta(HttpStatus.valueOf(e.getStatusCode().value()), e.getReason());
+    }
+
+    // Falhas de rede com a API de cotação (timeout, conexão recusada) não passam pelo FeignErrorDecoder
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<Map<String, String>> servicoExterno(FeignException e) {
+        return resposta(HttpStatus.SERVICE_UNAVAILABLE, "Serviço de cotação indisponível, tente novamente");
     }
 
     @ExceptionHandler(AuthenticationException.class)
