@@ -21,6 +21,8 @@ public class ConversaoService {
 
 
     public BigDecimal converter(CotacaoRequest cotacaoRequest){
+
+        String.valueOf(cotacaoRequest.getValor()).matches("[A-Za-z]{3}");
         if(cotacaoRequest == null || cotacaoRequest.getMoedaOrigem() == null || cotacaoRequest.getMoedaDestino() == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "informe a moeda de origem e o destino");
             }
