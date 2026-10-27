@@ -56,6 +56,7 @@ public class BancoService {
         Conta conta = Conta.builder()
                 .usuario(salvo)
                 .saldo(BigDecimal.ZERO)
+                .limiteCartao(BigDecimal.ZERO)
                 .build();
         contaRepository.save(conta);
         return salvo;

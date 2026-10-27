@@ -22,6 +22,8 @@ public class Conta {
     private Usuario usuario;
     @Column(name = "saldo", precision = 19, scale = 2)
     private BigDecimal saldo;
+    @Column(name = "limiteCartao", precision = 19, scale = 2)
+    private BigDecimal limiteCartao;
     @Version
     private Long version;
 

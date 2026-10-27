@@ -40,4 +40,9 @@ public class ContaController {
         return ResponseEntity.ok(contaService.consultarExtrato(token));
     }
 
+    @GetMapping("/limite")
+    public ResponseEntity<BigDecimal> verLimite(@RequestHeader ("Authorization") String token){
+        return ResponseEntity.ok(contaService.consultaLimite(token));
+    }
+
 }
