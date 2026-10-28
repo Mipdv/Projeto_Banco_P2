@@ -119,6 +119,10 @@ public class BancoService {
         return usuarioRepository.findByEmail(email);
     }
 
+    public List<Usuario> listarTodos() {
+        return usuarioRepository.findAll();
+    }
+
     public Usuario localizaPorId(Long id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario nao encontrado"));
@@ -169,30 +173,62 @@ public class BancoService {
         return usuarioRepository.save(usuario);
     }
 
+    @Transactional
     public Telefone cadastraTelefone(String token, Telefone telefone) {
         String email = jwtUtil.extractUsername(token.substring(7));
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() ->
                 new ResoucerNotFoundException("Email não existe " + email));
-        return telefoneRepository.save(telefone);
+        // O vínculo (usuario_id) vem da lista do Usuario, por causa do @JoinColumn em Usuario
+        Telefone salvo = telefoneRepository.save(telefone);
+        usuario.getTelefone().add(salvo);
+        return salvo;
     }
 
     public Telefone atualizaTelefone(Long id, Telefone telefone) {
         Telefone entity = telefoneRepository.findById(id).orElseThrow(() ->
-                new ResoucerNotFoundException("Telefone não encontrado " + id));
-        return telefoneRepository.save(telefone);
+                new ResoucerNotFoundException("Telefone não encontrado"));
+        if (telefone.getDdd() != null) {//Caso venha vazio no body - atualizacao parcial
+            entity.setDdd(telefone.getDdd());
+        }
+        if (telefone.getNumero() != null) {
+            entity.setNumero(telefone.getNumero());
+        }
+        return telefoneRepository.save(entity);
     }
 
+    @Transactional
     public Endereco cadastraEndereco(String token, Endereco endereco) {
         String email = jwtUtil.extractUsername(token.substring(7));
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() ->
                 new ResoucerNotFoundException("Email não localizado " + email));
-        return enderecoRepository.save(endereco);
+        // O vínculo (usuario_id) vem da lista do Usuario, por causa do @JoinColumn em Usuario
+        Endereco salvo = enderecoRepository.save(endereco);
+        usuario.getEndereco().add(salvo);
+        return salvo;
     }
 
     public Endereco atualizaEndereco(Long id, Endereco endereco) {
         Endereco entity = enderecoRepository.findById(id).orElseThrow(() ->
-                new ResoucerNotFoundException("Endereco não encontrado " + endereco));
-        return enderecoRepository.save(endereco);
+                new ResoucerNotFoundException("Endereco não encontrado " + id));
+        if (endereco.getRua() != null) {//Caso venha vazio no body - atualizacao parcial
+            entity.setRua(endereco.getRua());
+        }
+        if (endereco.getNumero() != null) {
+            entity.setNumero(endereco.getNumero());
+        }
+        if (endereco.getComplemento() != null) {
+            entity.setComplemento(endereco.getComplemento());
+        }
+        if (endereco.getCidade() != null) {
+            entity.setCidade(endereco.getCidade());
+        }
+        if (endereco.getEstado() != null) {
+            entity.setEstado(endereco.getEstado());
+        }
+        if (endereco.getCep() != null) {
+            entity.setCep(endereco.getCep());
+        }
+        return enderecoRepository.save(entity);
     }
 
     public void deletaPorEmail(String email) {

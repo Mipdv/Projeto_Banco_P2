@@ -40,14 +40,14 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    ResponseEntity<Usuario> buscarUsuario(@RequestBody Long id){
+    ResponseEntity<Usuario> buscarUsuario(@PathVariable Long id){
         return ResponseEntity.ok(bancoService.localizaPorId(id));
     }
     @GetMapping
-    ResponseEntity<Optional<Usuario>> listaDeUsuarios(@RequestBody String email){
-        return ResponseEntity.ok(bancoService.listarUsuario(email));
+    ResponseEntity<List<Usuario>> listaDeUsuarios(){
+        return ResponseEntity.ok(bancoService.listarTodos());
     }
-    @PutMapping
+    @PatchMapping
     ResponseEntity<Usuario> atualizaParcialmenteUsuario(@RequestBody Usuario usuario,
                                                         @RequestHeader ("Authorization") String token){
         return ResponseEntity.ok(bancoService.atualizarDadosUsuario(token, usuario));
@@ -59,7 +59,7 @@ public class UsuarioController {
         return ResponseEntity.ok(bancoService.cadastraTelefone(token, telefone));
     }
 
-    @PutMapping("/telefone")
+    @PatchMapping("/telefone")
     ResponseEntity<Telefone> atualizaTelefone(@RequestBody Telefone telefone,
                                               @RequestParam("id") Long id){
         return ResponseEntity.ok(bancoService.atualizaTelefone(id, telefone));
@@ -71,13 +71,13 @@ public class UsuarioController {
         return ResponseEntity.ok(bancoService.cadastraEndereco(token, endereco));
     }
 
-    @PutMapping("/endereco")
+    @PatchMapping("/endereco")
     public ResponseEntity<Endereco> atualizaEndereco(@RequestBody Endereco endereco,
                                                      @RequestParam("id") Long id){
         return ResponseEntity.ok(bancoService.atualizaEndereco(id, endereco));
     }
 
-    @PatchMapping
+    @PutMapping
     ResponseEntity<Usuario> atualizaCompleto(Usuario usuario, Long id){
         return ResponseEntity.ok(bancoService.atualizaUsuarioPorId(id, usuario));
     }
