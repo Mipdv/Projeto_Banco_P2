@@ -1,9 +1,9 @@
 package com.controller;
 
 import com.business.AcaoService;
-import com.infrastructure.Client.AcaoClient;
-import com.infrastructure.entity.BrapiResponse;
+
 import com.infrastructure.entity.CotacaoAcaoResponse;
+import com.infrastructure.entity.Negociacao;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,5 +25,19 @@ public class AcaoController {
     @GetMapping("/{acao}")
     public ResponseEntity<CotacaoAcaoResponse> consulta(@PathVariable String acao){
         return ResponseEntity.ok(acaoService.buscar(acao));
+    }
+
+    @PostMapping("/comprar")
+    public ResponseEntity<Negociacao> comprar (@RequestHeader ("Authorization") String token,
+                                               @RequestParam String acao,
+                                               @RequestParam Integer quantidade){
+        return ResponseEntity.ok(acaoService.comprar(token, acao, quantidade));
+    }
+
+    @PostMapping("/vender")
+    public ResponseEntity<Negociacao> vender (@RequestHeader ("Authorization") String token,
+                                              @RequestParam String acao,
+                                              @RequestParam Integer quantidade){
+        return ResponseEntity.ok(acaoService.vender(token, acao, quantidade));
     }
 }

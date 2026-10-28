@@ -6,10 +6,12 @@ import com.infrastructure.Client.AcaoClient;
 import com.infrastructure.entity.BrapiResponse;
 import com.infrastructure.entity.Conta;
 import com.infrastructure.entity.CotacaoAcaoResponse;
+import com.infrastructure.entity.Negociacao;
 import com.infrastructure.security.JwtUtil;
 import com.repository.ContaRepository;
 import com.repository.NegociacaoRepository;
 import com.repository.PosicaoCarteira;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -85,5 +88,55 @@ public class AcaoService {
         String email = jwtUtil.extractUsername(token.substring(7));
         return contaRepository.findByUsuarioEmail(email).orElseThrow(() ->
                 new ResoucerNotFoundException("Conta não encontrada"));
+    }
+
+    @Transactional
+    public Negociacao comprar (String token, String acao, Integer quantidade){
+        Conta conta = buscaContaDoToken(token);
+        CotacaoAcaoResponse cotacao = buscar(acao);
+        BigDecimal custo = cotacao.getRegularMarketPrice()
+                .multiply(BigDecimal.valueOf(quantidade))
+                .setScale(2, RoundingMode.HALF_EVEN);
+        if (quantidade == null || quantidade <= 0){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantidade deve ser maior que zero");
+        }
+        if(conta.getSaldo().compareTo(custo) <0){
+            throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_CONTENT, "Saldo insuficiente");
+        }
+        conta.setSaldo(conta.getSaldo().subtract(custo));
+        contaRepository.save(conta);
+        return negociacaoRepository.save(Negociacao.builder()
+                .conta(conta)
+                .acao(cotacao.getSymbol())
+                .tipo(AcaoEnum.COMPRA)
+                .quantidade(quantidade)
+                .precoUnitario(cotacao.getRegularMarketPrice())
+                .precoFinal(custo)
+                .dataHora(LocalDateTime.now())
+                .build());
+
+    }
+
+    @Transactional
+    public Negociacao vender (String token, String acao, Integer quantidade){
+        Conta conta = buscaContaDoToken(token);
+        CotacaoAcaoResponse cotacao = buscar(acao);
+        BigDecimal custo = cotacao.getRegularMarketPrice()
+                .multiply(BigDecimal.valueOf(quantidade))
+                .setScale(2, RoundingMode.HALF_EVEN);
+        if (quantidade == null || quantidade <= 0){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantidade deve ser maior que zero");
+        }
+        conta.setSaldo(conta.getSaldo().add(custo));
+        contaRepository.save(conta);
+        return negociacaoRepository.save(Negociacao.builder()
+                .conta(conta)
+                .acao(cotacao.getSymbol())
+                .tipo(AcaoEnum.VENDA)
+                .quantidade(quantidade)
+                .precoUnitario(cotacao.getRegularMarketPrice())
+                .precoFinal(custo)
+                .dataHora(LocalDateTime.now())
+                .build());
     }
 }
