@@ -77,10 +77,6 @@ public class UsuarioController {
         return ResponseEntity.ok(bancoService.atualizaEndereco(id, endereco));
     }
 
-    @PutMapping
-    ResponseEntity<Usuario> atualizaCompleto(Usuario usuario, Long id){
-        return ResponseEntity.ok(bancoService.atualizaUsuarioPorId(id, usuario));
-    }
 
     @DeleteMapping("/{email}")
     ResponseEntity<Void> deletaPorEmail(@PathVariable String email){

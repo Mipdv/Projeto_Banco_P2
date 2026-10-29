@@ -125,52 +125,45 @@ public class BancoService {
 
     public Usuario localizaPorId(Long id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario nao encontrado"));
+                .orElseThrow(() -> new ResoucerNotFoundException("Usuario nao encontrado"));
     }
 
-    public Usuario atualizaUsuarioPorId(Long id, Usuario usuarioatuAlizado) {
-        if (usuarioatuAlizado == null) {
-            throw new IllegalArgumentException("Usuario não pode ser nulo");
-        }
-        if (usuarioatuAlizado.getNome() == null
-                || usuarioatuAlizado.getCpf() == null
-                || usuarioatuAlizado.getEmail() == null
-                || usuarioatuAlizado.getDataDeNascimento() == null
-                || usuarioatuAlizado.getTelefone() == null
-                || usuarioatuAlizado.getEndereco() == null) {
-            throw new IllegalArgumentException("Campo não pode ser nulo");
-        }
-        Usuario usuario = localizaPorId(id);
-        usuario.setNome(usuarioatuAlizado.getNome());
-        usuario.setSenha(usuarioatuAlizado.getSenha());
-        usuario.setCpf(usuarioatuAlizado.getCpf());
-        usuario.setEmail(usuarioatuAlizado.getEmail());
-        usuario.setDataDeNascimento(usuarioatuAlizado.getDataDeNascimento());
-        usuario.setTelefone(usuarioatuAlizado.getTelefone());
-        usuario.setEndereco(usuarioatuAlizado.getEndereco());
-        return usuarioRepository.save(usuario);
-    }
 
-//     public Usuario atualizaParcialPorId(Long id, Usuario parcial){
-//        if(parcial == null){
-//            throw new IllegalArgumentException("Usuario nao pode ser nul!");
-//        }
-//        Usuario usuario = localizaPorId(id);
-//        usuario.setNome(parcial.getNome());
-//        usuario.setSenha(parcial.getSenha());
-//        usuario.setEmail(parcial.getEmail());
-//        usuario.setDataDeNascimento(parcial.getDataDeNascimento());
-//        usuario.setTelefone(parcial.getTelefone());
-//        usuario.setEndereco(parcial.getEndereco());
-//        return usuarioRepository.save(usuario);
-//     }
 
+    @Transactional
     public Usuario atualizarDadosUsuario(String token, Usuario usuario) {
         String email = jwtUtil.extractUsername(token.substring(7));
-        usuario.setSenha(usuario.getSenha() != null ? passwordEncoder.encode(usuario.getSenha()) : null);
         Usuario usuarioentity = usuarioRepository.findByEmail(email).orElseThrow(() ->
                 new ResoucerNotFoundException("Email não encontrado"));
-        return usuarioRepository.save(usuario);
+
+        if (usuario.getCpf() != null && !usuario.getCpf().equals(usuarioentity.getCpf())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "CPF não pode ser alterado");
+        }
+        if (usuario.getEmail() != null && !usuario.getEmail().equals(usuarioentity.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "E-mail não pode ser alterado");
+        }
+
+        if (usuario.getNome() != null) {
+            usuarioentity.setNome(usuario.getNome());
+        }
+        if (usuario.getDataDeNascimento() != null) {
+            validaIdadeMinima(usuario.getDataDeNascimento());
+            usuarioentity.setDataDeNascimento(usuario.getDataDeNascimento());
+        }
+        if (usuario.getSenha() != null) {
+            validaSenha(usuario.getSenha());
+            usuarioentity.setSenha(passwordEncoder.encode(usuario.getSenha()));
+        }
+        if (usuario.getObjetivo() != null) {
+            usuarioentity.setObjetivo(usuario.getObjetivo());
+        }
+        if (usuario.getVolume() != null) {
+            usuarioentity.setVolume(usuario.getVolume());
+        }
+        if (usuario.getPerfil() != null) {
+            usuarioentity.setPerfil(usuario.getPerfil());
+        }
+        return usuarioRepository.save(usuarioentity);
     }
 
     @Transactional
